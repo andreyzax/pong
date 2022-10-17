@@ -1,0 +1,6 @@
+[MAIN]
+extension-pkg-allow-list=pygame
+
+[FORMAT]
+indent-string='   '
+max-line-length=190
