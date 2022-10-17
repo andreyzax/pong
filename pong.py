@@ -51,7 +51,7 @@ background = Background(bg_color, light_grey)
 
 while True:
    for event in pygame.event.get():
-      if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and pygame.key.get_pressed()[pygame.K_ESCAPE]:
+      if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
          pygame.quit()
          sys.exit(0)
 
