@@ -61,6 +61,7 @@ class Paddle(pygame.sprite.Sprite):
 
 
    def update(self):
+      # Move the paddle up & down but limit range of motion to the play_area top and bottom edges
       if pygame.key.get_pressed()[pygame.K_UP]:
          self.rect.top = max((self.rect.top - self.step), background.play_area.top)
       elif pygame.key.get_pressed()[pygame.K_DOWN]:
