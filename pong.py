@@ -68,11 +68,49 @@ class Paddle(pygame.sprite.Sprite):
          self.rect.bottom = min((self.rect.bottom + self.step), background.play_area.bottom)
 
 
+class Ball(pygame.sprite.Sprite):
+
+   top_nv    = pygame.Vector2(0,-1)
+   bottom_nv = pygame.Vector2(0,1)
+   right_nv  = pygame.Vector2(-1,0)
+   left_nv   = pygame.Vector2(1,0)
+
+   def __init__(self, postion, velocity, color):
+
+      super().__init__()
+
+      self.postion = postion
+      self.velocity = velocity
+
+      self.image = pygame.Surface((20,20))
+      self.image.fill(color)
+      self.rect = self.image.get_rect( center=(round(postion.x), round(postion.y)) )
+
+
+   def update(self):
+      self.postion += self.velocity
+      self.rect.center = (round(self.postion.x), round(self.postion.y))
+
+      # Check for collisions with play area border
+      if self.rect.colliderect(background.play_area):
+         if self.rect.top <= background.play_area.top:
+            self.velocity.reflect_ip(self.top_nv)
+         elif self.rect.bottom >= background.play_area.bottom:
+            self.velocity.reflect_ip(self.bottom_nv)
+         elif self.rect.right >= background.play_area.right:
+            self.velocity.reflect_ip(self.right_nv)
+         elif self.rect.left <= background.play_area.left:
+            self.velocity.reflect_ip(self.left_nv)
+
+
 background = Background(bg_color, light_grey)
 
 player = pygame.sprite.GroupSingle()
 player.add(Paddle(background.play_area.left + SCREEN_W * 0.005 * 3, background.play_area.centery, light_grey,
                   step=background.play_area.height * 0.01))
+
+ball = pygame.sprite.GroupSingle()
+ball.add(Ball(pygame.Vector2(background.play_area.center), pygame.Vector2(5,10), light_grey))
 
 while True:
    for event in pygame.event.get():
@@ -84,6 +122,9 @@ while True:
 
    player.update()
    player.draw(screen)
+
+   ball.update()
+   ball.draw(screen)
 
    pygame.display.update()
 
