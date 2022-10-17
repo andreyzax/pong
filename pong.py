@@ -47,7 +47,31 @@ class Background:
       #pygame.draw.rect(display,'Red',self.play_area,1)
       pygame.draw.line(display, self.border_color, self.border.midtop, self.border.midbottom, 3)
 
+
+class Paddle(pygame.sprite.Sprite):
+
+   def __init__(self, x, y, color, step=10): # Coordinates are for the CENTER of the sprite (NOT top right corner).
+
+      super().__init__()
+
+      self.step = step
+      self.image = pygame.surface.Surface((SCREEN_W * 0.005, SCREEN_H * 0.15))
+      self.image.fill(color)
+      self.rect = self.image.get_rect(center=(x, y))
+
+
+   def update(self):
+      if pygame.key.get_pressed()[pygame.K_UP]:
+         self.rect.top = max((self.rect.top - self.step), background.play_area.top)
+      elif pygame.key.get_pressed()[pygame.K_DOWN]:
+         self.rect.bottom = min((self.rect.bottom + self.step), background.play_area.bottom)
+
+
 background = Background(bg_color, light_grey)
+
+player = pygame.sprite.GroupSingle()
+player.add(Paddle(background.play_area.left + SCREEN_W * 0.005 * 3, background.play_area.centery, light_grey,
+                  step=background.play_area.height * 0.01))
 
 while True:
    for event in pygame.event.get():
@@ -56,6 +80,9 @@ while True:
          sys.exit(0)
 
    background.draw_bg(screen)
+
+   player.update()
+   player.draw(screen)
 
    pygame.display.update()
 
