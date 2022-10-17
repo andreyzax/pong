@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import pygame
 
 SCREEN_W = 1920
@@ -17,7 +18,7 @@ while True:
    for event in pygame.event.get():
       if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and pygame.key.get_pressed()[pygame.K_ESCAPE]:
          pygame.quit()
-         exit(0)
+         sys.exit(0)
 
    pygame.display.update()
 
