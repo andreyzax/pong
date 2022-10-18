@@ -55,7 +55,7 @@ class Background:
 
       display.fill(self.bg_color)
       pygame.draw.rect(display, self.border_color, self.border, int(SCREEN_W * 0.005))
-      pygame.draw.line(display, self.border_color, self.border.midtop, self.border.midbottom, 3)
+      pygame.draw.line(display, self.border_color, self.play_area.midtop, self.play_area.midbottom, 3)
 
 
 class Paddle(pygame.sprite.Sprite):
