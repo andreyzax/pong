@@ -17,7 +17,7 @@ pygame.display.set_caption('pong')
 screen = pygame.display.get_surface()
 
 bg_color = pygame.Color('grey 12')
-light_grey = pygame.Color(200, 200, 200)
+light_grey = pygame.Color(175, 175, 175)
 
 clock = pygame.time.Clock()
 
