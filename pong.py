@@ -48,7 +48,6 @@ class Background:
 
       display.fill(self.bg_color)
       pygame.draw.rect(display, self.border_color, self.border, int(SCREEN_W * 0.005))
-      #pygame.draw.rect(display,'Red',self.play_area,1)
       pygame.draw.line(display, self.border_color, self.border.midtop, self.border.midbottom, 3)
 
 
