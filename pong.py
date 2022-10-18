@@ -63,12 +63,34 @@ class Paddle(pygame.sprite.Sprite):
       self.rect = self.image.get_rect(center=(x, y))
 
 
+   def _is_mouse_virtual(self):
+
+      return (not pygame.mouse.get_visible()) and pygame.event.get_grab()
+
+
+   def _mouse_vert_movment(self):
+
+      y_delta = 0
+      if self._is_mouse_virtual():
+         _, y_delta = pygame.mouse.get_rel()
+
+      return y_delta
+
+
    def update(self):
       # Move the paddle up & down but limit range of motion to the play_area top and bottom edges
       if pygame.key.get_pressed()[pygame.K_UP]:
          self.rect.top = max((self.rect.top - self.step), background.play_area.top)
       elif pygame.key.get_pressed()[pygame.K_DOWN]:
          self.rect.bottom = min((self.rect.bottom + self.step), background.play_area.bottom)
+      else: # This being here means that keyboard input gets priority over mouse input
+         mouse_y = self._mouse_vert_movment()
+         if mouse_y == 0:
+            pass
+         elif mouse_y < 0:
+            self.rect.top = max((self.rect.top + self.step * mouse_y * 0.08), background.play_area.top)
+         elif mouse_y > 0:
+            self.rect.bottom = min((self.rect.bottom + self.step * mouse_y * 0.08), background.play_area.bottom)
 
 
 class Ball(pygame.sprite.Sprite):
@@ -129,6 +151,12 @@ while True:
       if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
          pygame.quit()
          sys.exit(0)
+      elif event.type == pygame.MOUSEBUTTONDOWN:
+         pygame.event.set_grab(True)
+         pygame.mouse.set_visible(False)
+      elif event.type == pygame.MOUSEBUTTONUP:
+         pygame.event.set_grab(False)
+         pygame.mouse.set_visible(True)
 
    background.draw_bg(screen)
 
