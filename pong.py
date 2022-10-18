@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 
+from random import randint
+
 import sys
 import pygame
 
 SCREEN_W = 1920
 SCREEN_H = 1200
+
+INITIAL_BALL_SPEED = 10
 
 pygame.init()
 
@@ -95,12 +99,16 @@ class Ball(pygame.sprite.Sprite):
       if self.rect.colliderect(background.play_area):
          if self.rect.top <= background.play_area.top:
             self.velocity.reflect_ip(self.top_nv)
+            self.postion += self.velocity   # We do this here and in the other collision check clauses to avoid the ball overshooting the game area and getting stuck outside of it
          elif self.rect.bottom >= background.play_area.bottom:
             self.velocity.reflect_ip(self.bottom_nv)
+            self.postion += self.velocity
          elif self.rect.right >= background.play_area.right:
             self.velocity.reflect_ip(self.right_nv)
+            self.postion += self.velocity
          elif self.rect.left <= background.play_area.left:
             self.velocity.reflect_ip(self.left_nv)
+            self.postion += self.velocity
 
 
 background = Background(bg_color, light_grey)
@@ -109,8 +117,12 @@ player = pygame.sprite.GroupSingle()
 player.add(Paddle(background.play_area.left + SCREEN_W * 0.005 * 3, background.play_area.centery, light_grey,
                   step=background.play_area.height * 0.01))
 
+# Randomize intial ball velocity
+ball_velocity = pygame.Vector2(INITIAL_BALL_SPEED,0)
+ball_velocity.rotate_ip(randint(0, 360))
+
 ball = pygame.sprite.GroupSingle()
-ball.add(Ball(pygame.Vector2(background.play_area.center), pygame.Vector2(5,10), light_grey))
+ball.add(Ball(pygame.Vector2(background.play_area.center), ball_velocity, light_grey))
 
 while True:
    for event in pygame.event.get():
