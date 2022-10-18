@@ -99,7 +99,8 @@ class Ball(pygame.sprite.Sprite):
       if self.rect.colliderect(background.play_area):
          if self.rect.top <= background.play_area.top:
             self.velocity.reflect_ip(self.top_nv)
-            self.postion += self.velocity   # We do this here and in the other collision check clauses to avoid the ball overshooting the game area and getting stuck outside of it
+            self.postion += self.velocity  # After reflecting the ball velocity away from the edge we immediatly move the ball one "step"
+                                           # We do this here and in the other collision check clauses to avoid the ball overshooting the game area and getting stuck outside of it
          elif self.rect.bottom >= background.play_area.bottom:
             self.velocity.reflect_ip(self.bottom_nv)
             self.postion += self.velocity
