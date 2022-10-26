@@ -175,8 +175,8 @@ class Ball(pygame.sprite.Sprite):
       if paddle := pygame.sprite.spritecollideany(self, player): # ':=' is a new python 3.8 operator, it does excatly what it looks it's doing
          score += 1
          self.velocity.reflect_ip(paddle.nv)
-         self.velocity.y += min(paddle.velocity_y, MAX_BALL_YV, key=abs) # This limit is mostly for playability, the game runs fine without this limit
-                                                                         # but trying to hit the ball when it's moving nearly verticly is very hard.
+         self.velocity.y = min(self.velocity.y + paddle.velocity_y, MAX_BALL_YV, key=abs) # This limit is mostly for playability, the game runs fine without this limit
+                                                                                          # but trying to hit the ball when it's moving nearly verticly is very hard.
 
          self.velocity.scale_to_length(min(MAX_BALL_SPEED, self.velocity.length())) # Make sure to limit the speed (our collision logic doesn't handle high speeds well)
                                                                                     # We are doing this here since this is the only place we actually *change* the magnitude of the
