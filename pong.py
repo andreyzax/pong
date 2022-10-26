@@ -17,6 +17,7 @@ pygame.init()
 pygame.display.set_mode((SCREEN_W, SCREEN_H))
 pygame.display.set_caption('pong')
 screen = pygame.display.get_surface()
+screen_rect = screen.get_rect() # Used to detect if ball is outside of screen & end the game
 
 bg_color = pygame.Color('grey 12')
 light_grey = pygame.Color(175, 175, 175)
@@ -24,6 +25,8 @@ light_grey = pygame.Color(175, 175, 175)
 game_font = pygame.font.Font('fonts/bit5x3.ttf', SCREEN_H // 10)
 
 clock = pygame.time.Clock()
+
+game_active = True
 
 
 score = 0
@@ -129,10 +132,17 @@ class Ball(pygame.sprite.Sprite):
 
    def update(self):
 
-      global score
+      global score, game_active, screen_rect
 
       self.postion += self.velocity
       self.rect.center = (round(self.postion.x), round(self.postion.y))
+
+      # Check if we left the screen
+      # If we have, we set the game_active global to false and return immediatly since we
+      # don't need to track the ball after it left the screen
+      if not self.rect.colliderect(screen_rect):
+         game_active = False
+         return
 
       # Check for collisions with play area border
       if self.rect.colliderect(background.play_area):
@@ -146,9 +156,12 @@ class Ball(pygame.sprite.Sprite):
          elif self.rect.right >= background.play_area.right:
             self.velocity.reflect_ip(self.right_nv)
             self.postion += self.velocity
-         elif self.rect.left <= background.play_area.left:
-            self.velocity.reflect_ip(self.left_nv)
-            self.postion += self.velocity
+         #elif self.rect.left <= background.play_area.left:
+         #   # We don't want to collide with the left side
+         #   # We let the ball pass through which will cause a game over state when the ball leaves the screen
+         #   # The code is left here in case we want to re-enable collsions
+         #   self.velocity.reflect_ip(self.left_nv)
+         #   self.postion += self.velocity
 
       # Check for collisions with the player
       if paddle := pygame.sprite.spritecollideany(self, player): # ':=' is a new python 3.8 operator, it does excatly what it looks it's doing
@@ -178,29 +191,69 @@ ball_velocity.rotate_ip(randint(0, 360))
 ball = pygame.sprite.GroupSingle()
 ball.add(Ball(pygame.Vector2(background.play_area.center), ball_velocity, light_grey))
 
+
+def draw_game_over(display, **kwargs):
+   '''kwargs are passed directly to Surface.get_rect() so are identical to that method's keyword arguments'''
+
+   game_over_font = pygame.font.Font('fonts/bit5x3.ttf', SCREEN_H // 5)
+   game_over_surf = game_over_font.render('GAME OVER', False, light_grey)
+   game_over_surf = pygame.transform.scale(game_over_surf, (game_over_surf.get_width() * 1, game_over_surf.get_height() * 1.2))
+   game_over_rect = game_over_surf.get_rect(**kwargs)
+   display.blit(game_over_surf, game_over_rect)
+
+
+def reset_game():
+
+   global score, game_active
+   score = 0
+
+   player.sprite.kill()
+   player.add(Paddle(background.play_area.left + SCREEN_W * 0.005 * 3, background.play_area.centery, Paddle.left_nv ,light_grey,
+                  step=background.play_area.height * 0.01))
+
+   ball.sprite.kill()
+   ball_velocity = pygame.Vector2(INITIAL_BALL_SPEED,0)
+   ball_velocity.rotate_ip(randint(0, 360))
+   ball.add(Ball(pygame.Vector2(background.play_area.center), ball_velocity, light_grey))
+
+   game_active = True
+
 while True:
    for event in pygame.event.get():
-      if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+      if event.type == pygame.QUIT:
          pygame.quit()
          sys.exit(0)
-      elif event.type == pygame.MOUSEBUTTONDOWN:
-         pygame.event.set_grab(True)
-         pygame.mouse.set_visible(False)
-      elif event.type == pygame.MOUSEBUTTONUP:
-         pygame.event.set_grab(False)
-         pygame.mouse.set_visible(True)
+      if game_active:
+         if event.type == pygame.MOUSEBUTTONDOWN:
+            pygame.event.set_grab(True)
+            pygame.mouse.set_visible(False)
+         elif event.type == pygame.MOUSEBUTTONUP:
+            pygame.event.set_grab(False)
+            pygame.mouse.set_visible(True)
+         elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            game_active = False
+      else:
+         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            reset_game()
+         elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            pygame.quit()
+            sys.exit(0)
 
-   background.draw_bg(screen)
+   if game_active:
+      background.draw_bg(screen)
 
-   player.update()
-   player.draw(screen)
+      player.update()
+      player.draw(screen)
 
-   ball.update()
-   ball.draw(screen)
+      ball.update()
+      ball.draw(screen)
 
-   score_surf = game_font.render(f'{score:02}', False, light_grey)
-   score_rect = score_surf.get_rect(centerx=background.play_area.centerx * 0.9, centery=background.play_area.top + 100)
-   screen.blit(score_surf, score_rect)
+      score_surf = game_font.render(f'{score:02}', False, light_grey)
+      #score_surf = pygame.transform.scale(score_surf, (score_surf.get_width(), score_surf.get_height() * 1.2))
+      score_rect = score_surf.get_rect(centerx=background.play_area.centerx * 0.9, centery=background.play_area.top + 100)
+      screen.blit(score_surf, score_rect)
+   else:
+      draw_game_over(screen, center=background.play_area.center)
 
    pygame.display.update()
 
