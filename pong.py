@@ -48,7 +48,7 @@ class Background:
 
    def __init__(self, bg_color, border_color):
 
-      if not self._initialized:   # Protect from mutiple calls to __init__()
+      if not self._initialized:   # Protect from multiple calls to __init__()
          self._initialized = True
          self.bg_color = bg_color
          self.border_color = border_color
