@@ -24,6 +24,8 @@ light_grey = pygame.Color(175, 175, 175)
 
 game_font = pygame.font.Font('fonts/bit5x3.ttf', SCREEN_H // 10)
 
+game_sound = pygame.mixer.Sound('audio/pong.mp3')
+
 clock = pygame.time.Clock()
 
 game_active = True
@@ -150,12 +152,18 @@ class Ball(pygame.sprite.Sprite):
             self.velocity.reflect_ip(self.top_nv)
             self.postion += self.velocity  # After reflecting the ball velocity away from the edge we immediatly move the ball one "step"
                                            # We do this here and in the other collision check clauses to avoid the ball overshooting the game area and getting stuck outside of it
+
+            game_sound.play() #TODO: fix laggy sound
          elif self.rect.bottom >= background.play_area.bottom:
             self.velocity.reflect_ip(self.bottom_nv)
             self.postion += self.velocity
+
+            game_sound.play()
          elif self.rect.right >= background.play_area.right:
             self.velocity.reflect_ip(self.right_nv)
             self.postion += self.velocity
+
+            game_sound.play()
          #elif self.rect.left <= background.play_area.left:
          #   # We don't want to collide with the left side
          #   # We let the ball pass through which will cause a game over state when the ball leaves the screen
@@ -176,6 +184,8 @@ class Ball(pygame.sprite.Sprite):
          #print(self.velocity.length())
 
          self.postion += self.velocity # Same here as in the border collison checks, prevents overshooting, ball getting "stuck" in a collision state
+
+         game_sound.play()
 
 
 background = Background(bg_color, light_grey)
